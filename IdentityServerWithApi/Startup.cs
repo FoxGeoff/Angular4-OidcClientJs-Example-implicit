@@ -15,7 +15,7 @@ namespace IdentityServer4InMem
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            
+
             services.AddIdentityServer()
                 .AddDeveloperSigningCredential()
                 .AddInMemoryIdentityResources(identityResources)
@@ -31,7 +31,7 @@ namespace IdentityServer4InMem
                     options.ApiName = "api1";
                 });
         }
-        
+
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole();
@@ -41,7 +41,7 @@ namespace IdentityServer4InMem
             {
                 api.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
                 api.UseAuthentication();
-                
+
                 api.Run(async context =>
                 {
                     var result = await context.AuthenticateAsync("api");
@@ -57,11 +57,11 @@ namespace IdentityServer4InMem
             });
 
             app.UseIdentityServer();
-            
+
             app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
         }
-        
+
         private readonly List<IdentityResource> identityResources = new List<IdentityResource>
         {
             new IdentityResources.OpenId(),
@@ -72,9 +72,10 @@ namespace IdentityServer4InMem
         {
             new ApiResource("api1", "My API #1")
         };
-        
+
         private readonly List<Client> clients = new List<Client>
         {
+            /* 
             new Client
             {
                 ClientId = "angular_spa",
@@ -85,7 +86,20 @@ namespace IdentityServer4InMem
                 PostLogoutRedirectUris = new List<string> {"http://localhost:4200/"},
                 AllowedCorsOrigins = new List<string> {"http://localhost:4200"},
                 AllowAccessTokensViaBrowser = true
-            }
+            } */
+
+            new Client {
+                ClientId = "angular_spa",
+                ClientName = "Angular 4 Client",
+                AllowedGrantTypes = GrantTypes.Code,
+                RequirePkce = true,
+                RequireClientSecret = false,
+                AllowedScopes = new List<string> {"openid", "profile", "api1"},
+                RedirectUris = new List<string> {"http://localhost:4200/auth-callback", "http://localhost:4200/silent-refresh.html"},
+                PostLogoutRedirectUris = new List<string> {"http://localhost:4200/"},
+                AllowedCorsOrigins = new List<string> {"http://localhost:4200"},
+                AllowAccessTokensViaBrowser = true
+            }       
         };
     }
 }
